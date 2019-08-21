@@ -110,7 +110,6 @@ class App extends Component {
       var accessToken = await this.userAgentApplication.acquireTokenSilent({
         scopes: config.scopes
       });
-
       if (accessToken) {
         // Get the user's profile from Graph
         var user = await getUserDetails(accessToken);

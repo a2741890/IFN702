@@ -1,5 +1,5 @@
 module.exports = {
-  appId: '6b2cde72-fc43-4759-bb16-463fab5a0f68',
+  apptenantId: '9e65b29b-3a34-4a70-8d39-0d18cf221a26',
   scopes: [
     "user.read",
     "calendars.read",

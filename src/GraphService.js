@@ -54,3 +54,27 @@ export async function createBooking(accessToken) {
   console.log(events);
   return events;
 }
+
+export async function getClientAccessToken() {
+  // let formData = new FormData();
+  // formData.append('client_id', '59d86960-9f67-4980-8297-e8f2f4edb685');
+  // formData.append('client_secret', 'yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69');
+  // formData.append('resource', 'https://graph.microsoft.com');
+  // formData.append('grant_type', 'client_credentials',);
+  // return fetch('https://login.microsoftonline.com/9e65b29b-3a34-4a70-8d39-0d18cf221a26/oauth2/token',
+  // {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type' : 'application/x-www-form-urlencoded',
+  //   },
+  //   body: JSON.stringify({
+  //   client_id : '59d86960-9f67-4980-8297-e8f2f4edb685',
+  //   client_secret: 'yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69',
+  //   resource : 'https://graph.microsoft.com/Bookings',
+  //   grant_type : 'client_credentials',
+  //   }),
+  // });
+  
+}
+
+getClientAccessToken();

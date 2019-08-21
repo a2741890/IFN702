@@ -5,6 +5,7 @@ import config from './Config';
 import { getEvents } from './GraphService';
 import { createEvents } from './GraphService';
 import { createBooking } from './GraphService';
+import {getClientAccessToken} from './GraphService';
 
 function formatDateTime(dateTime) {
   return moment.utc(dateTime).local().format('M/D/YY h:mm A');
