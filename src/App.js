@@ -34,7 +34,7 @@ class App extends Component {
 
     if (user) {
       // Enhance user object with data from Graph
-      this.getUserProfile();
+      //this.getUserProfile();
     }
   }
 
@@ -84,7 +84,7 @@ class App extends Component {
           scopes: config.scopes,
           prompt: "select_account"
       });
-      await this.getUserProfile();
+      //await this.getUserProfile();
     }
     catch(err) {
       var errParts = err.split('|');
@@ -107,9 +107,10 @@ class App extends Component {
       // will just return the cached token. Otherwise, it will
       // make a request to the Azure OAuth endpoint to get a token
 
-      var accessToken = await this.userAgentApplication.acquireTokenSilent({
-        scopes: config.scopes
-      });
+      var accessToken = "eyJ0eXAiOiJKV1QiLCJub25jZSI6IkhpRFNMSFhOa3pCbzdVR2pwVFA3TDFiWHhsVEgzSkNyQTZzbG1DbXIxdm8iLCJhbGciOiJSUzI1NiIsIng1dCI6ImllX3FXQ1hoWHh0MXpJRXN1NGM3YWNRVkduNCIsImtpZCI6ImllX3FXQ1hoWHh0MXpJRXN1NGM3YWNRVkduNCJ9.eyJhdWQiOiJodHRwczovL2dyYXBoLm1pY3Jvc29mdC5jb20iLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC85ZTY1YjI5Yi0zYTM0LTRhNzAtOGQzOS0wZDE4Y2YyMjFhMjYvIiwiaWF0IjoxNTY2NDg5MTA1LCJuYmYiOjE1NjY0ODkxMDUsImV4cCI6MTU2NjQ5MzAwNSwiYWlvIjoiNDJGZ1lDaUllNXF6Zm5MVTJwMkZvYytYT0h4cEJBQT0iLCJhcHBfZGlzcGxheW5hbWUiOiJNci5Cb29rZXIiLCJhcHBpZCI6IjU5ZDg2OTYwLTlmNjctNDk4MC04Mjk3LWU4ZjJmNGVkYjY4NSIsImFwcGlkYWNyIjoiMSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0LzllNjViMjliLTNhMzQtNGE3MC04ZDM5LTBkMThjZjIyMWEyNi8iLCJvaWQiOiJlNWJmOTlkMC1hYjUwLTRiM2QtYmYyMy1mODg4YTJjYjcyZjQiLCJzdWIiOiJlNWJmOTlkMC1hYjUwLTRiM2QtYmYyMy1mODg4YTJjYjcyZjQiLCJ0aWQiOiI5ZTY1YjI5Yi0zYTM0LTRhNzAtOGQzOS0wZDE4Y2YyMjFhMjYiLCJ1dGkiOiJlZGRQemJxS0pFTzB4M1I1MGNvQUFBIiwidmVyIjoiMS4wIiwieG1zX3RjZHQiOjE1NjU5MzY2NzB9.XuEOWTp3t1toUSYKvqoDcIkNlxqhbd9nFdJ7-QYRKaGEDxKeF1AQKKCADKIAcnRM2uOeLEVKTpfaWjO8ewvjUzlMp2BEK0yoipvEadUVfyxu2AKOeKHXb3K8bdMYmrB16YOX-lUCVHnQ-V53WwAxWQwYZdMHXzHavaHI6JgpADqMAzmNRa6rjWFOeVyuQP6pUhakmqOUI276-WFd848RKTvO59ZuKIdMIEvYcXMJgWP6k2G7A_iwAEw5kWIhq-QzbXgrvG9f7-nQhN9OZu3apjbDi32e9na0TuFL0ZXqFb8PA08twBop5efzW_slvMwnDzpOAHXyHj-GBMFP65d89g";
+      // await this.userAgentApplication.acquireTokenSilent({
+      //   scopes: config.scopes
+      // });
       if (accessToken) {
         // Get the user's profile from Graph
         var user = await getUserDetails(accessToken);
