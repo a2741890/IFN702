@@ -89,7 +89,7 @@ export default class NavBar extends React.Component {
       <div>
         <Navbar color="dark" dark expand="md" fixed="top">
           <Container>
-            <NavbarBrand href="/">React Graph Tutorial</NavbarBrand>
+            <NavbarBrand href="/">Mr.Booker</NavbarBrand>
             <NavbarToggler onClick={this.toggle} />
             <Collapse isOpen={this.state.isOpen} navbar>
               <Nav className="mr-auto" navbar>
