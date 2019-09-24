@@ -10,6 +10,7 @@ import { getUserDetails } from './GraphService';
 import 'bootstrap/dist/css/bootstrap.css';
 import Calendar from './Calendar';
 import { async } from 'q';
+import "./App.css";
 
 class App extends Component {
   constructor(props) {
@@ -56,9 +57,21 @@ class App extends Component {
               } />
             <Route exact path="/calendar"
               render={(props) =>
-                <Calendar {...props}
+                <div className="App">
+        <header>
+          <div id="logo">
+            <span className="icon">date_range</span>
+            <span>
+              Booking<b>Calendar</b>
+            </span>
+          </div>
+        </header>
+        <main>
+        <Calendar {...props}
                   token={this.state.token}
                   showError={this.setErrorMessage.bind(this)} />
+        </main>
+        </div>   
               } />
           </Container>
         </div>
@@ -85,7 +98,7 @@ async  getClientCredentialToken() {
       //   scopes: config.scopes
       // });
       
-        fetch("http://18.218.195.51/Project/api/token?userName=william", { 
+        fetch("http://localhost:3001/accessToken", { 
         method: 'get', 
         })
           .then(res => res.json())
@@ -97,6 +110,7 @@ async  getClientCredentialToken() {
             });}
             ,
             (error) => {
+              alert(error);
               console.log(error);
             }
           )
