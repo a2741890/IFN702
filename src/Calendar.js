@@ -120,24 +120,6 @@ class Calendar extends React.Component {
     });
   };
   
-  //顯示圖片
-  displaySchedule = () => {
-    var x = MouseEvent.clientX + document.body.scrollLeft + 20;
-    var y = MouseEvent.clientY + document.body.scrollTop - 5; 
-    this.setState({
-      scheduleLeft: x + "px",
-      scheduleTop: y + "px",
-      scheduleDisplay: "block"
-    });
-    
-  }
-
-  //圖片消失
-  vanishSchedule = () => {
-    this.setState({
-      scheduleDisplay: "none"
-    });
-  }
   render() {
     return (
       <div className="calendar">
