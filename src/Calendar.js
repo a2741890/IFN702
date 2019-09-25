@@ -6,6 +6,7 @@ import { getEvents } from './GraphService';
 import { createEvents } from './GraphService';
 import { getBookings } from './GraphService';
 import * as dateFns from 'date-fns';
+import { stringify } from 'querystring';
 
 
 
@@ -15,8 +16,9 @@ import * as dateFns from 'date-fns';
 
 class Calendar extends React.Component {
   state = {
-    currentMonth: new Date(),
-    selectedDate: new Date()
+    currentWeek: new Date(),
+    selectedDate: new Date(),
+    selectedDates: []
   };
 
   renderHeader() {
@@ -24,16 +26,16 @@ class Calendar extends React.Component {
   return (
     <div className="header row flex-middle">
       <div className="col col-start">
-        <div className="icon" onClick={this.prevMonth}>
+        <div className="icon" onClick={this.prevWeek}>
           chevron_left
         </div>
       </div>
       <div className="col col-center">
         <span>
-          {dateFns.format(this.state.currentMonth, dateFormat)}
+          {dateFns.format(this.state.currentWeek, dateFormat)}
         </span>
       </div>
-      <div className="col col-end" onClick={this.nextMonth}>
+      <div className="col col-end" onClick={this.nextWeek}>
         <div className="icon">chevron_right</div>
       </div>
     </div>
@@ -44,7 +46,7 @@ class Calendar extends React.Component {
     //原本小寫的d都變成i
     const dateFormat = 'iiii';
     const days = [];
-    let startDate = dateFns.startOfWeek(this.state.currentMonth);
+    let startDate = dateFns.startOfWeek(this.state.currentWeek);
     for (let i = 0; i < 7; i++) {
       //JSX syntax : push html element into array
       days.push(
@@ -57,37 +59,58 @@ class Calendar extends React.Component {
   }
 
   renderCells() {
-    const { currentMonth, selectedDate } = this.state;
-    const monthStart = dateFns.startOfMonth(currentMonth);
-    const monthEnd = dateFns.endOfMonth(monthStart);
-    const startDate = dateFns.startOfWeek(monthStart);
-    const endDate = dateFns.endOfWeek(monthEnd);
+    const { currentWeek, selectedDate } = this.state;
+    const weekStart = dateFns.startOfWeek(currentWeek);
+    const weekEnd = dateFns.endOfWeek(weekStart);
+    const startDate = dateFns.startOfWeek(weekStart);
+    const endDate = dateFns.endOfWeek(weekEnd);
 
     const dateFormat = "d";
     const rows = [];
 
     let days = [];
-    let day = startDate;
+    let day = dateFns.addHours(startDate, 9);
     let formattedDate = "";
+
+    let timeSlots = [];
+    const timeFormat = "HH:mm";
+    
 
     while (day <= endDate) {
       for (let i = 0; i < 7; i++) {
+        //Create time slots
+        let formattedDay = "";
+        timeSlots = [];
+        for (let j = 0; j < 9; j++) {
+          const cloneDay = day;
+          
+          formattedDay = dateFns.format(day, timeFormat);
+          timeSlots.push(
+            <div className={` ${
+              this.state.selectedDates.find(el => el.getTime() === cloneDay.getTime()) ? "selected":""} `}
+              key={day}
+             onClick={(e) => {e.stopPropagation(); this.onTimeClick(cloneDay);}}
+             >
+               <tr>{formattedDay}</tr></div>
+          );
+          day = dateFns.addHours(day, 1);
+        }
+        day = dateFns.subHours(day, 9);
+        
+        //Create days of the week
         formattedDate = dateFns.format(day, dateFormat);
-        const cloneDay = formattedDate;
         days.push(
           <div
-            className={`col cell ${
-              !dateFns.isSameMonth(day, monthStart)
-                ? "disabled"
-                : dateFns.isSameDay(day, selectedDate) ? "selected" : ""
-            }`}
-            key={day}
-            onClick={() => this.onDateClick(dateFns.parse(cloneDay, dateFormat, new Date()))}
-            
+            className={`col cell `}
           >
-            <span className="number">{formattedDate}</span>
-            <span className="bg">{formattedDate}</span>
-            <button className="button">Hi!</button>
+            {/* <span className="number">{formattedDate}</span>
+            <span className="bg">{formattedDate}</span> */}
+            <table>
+              <tr>
+              <th>{formattedDate}</th>
+              </tr>
+              {timeSlots}
+            </table>
           </div>
         );
         day = dateFns.addDays(day, 1);
@@ -102,21 +125,26 @@ class Calendar extends React.Component {
     return <div className="body">{rows}</div>;
   }
 
-  onDateClick = day => {
-    console.log(day);
+
+  onTimeClick = day => {
+    console.log(day+"Time");
+    let selectedDates = this.state.selectedDates;
+    console.log(selectedDates);
+    selectedDates.push(day);
     this.setState({
-      selectedDate: day
+      selectedDate: day,
+      selectedDates: selectedDates
     });
   };
 
-  nextMonth = () => {
+  nextWeek = () => {
     this.setState({
-      currentMonth: dateFns.addMonths(this.state.currentMonth, 1)
+      currentWeek: dateFns.addWeeks(this.state.currentWeek, 1)
     });
   };
-  prevMonth = () => {
+  prevWeek = () => {
     this.setState({
-      currentMonth: dateFns.subMonths(this.state.currentMonth, 1)
+      currentWeek: dateFns.subWeeks(this.state.currentWeek, 1)
     });
   };
   

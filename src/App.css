@@ -190,10 +190,10 @@ main {
   padding: .75em 0;
   border-bottom: 1px solid var(--border-color);
 }
-
+/*控制格子的大小*/
 .calendar .body .cell {
   position: relative;
-  height: 5em;
+  height: 100em;
   border-right: 1px solid var(--border-color);
   overflow: hidden;
   cursor: pointer;
