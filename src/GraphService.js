@@ -7,14 +7,20 @@ function getAuthenticatedClient(accessToken) {
   const client = graph.Client.init({
     // Use the provided access token to authenticate
     // requests
-    // authProvider: (done) => {
-    //   done(null, accessToken.accessToken);
-  
+    authProvider: (done) => {
+      done(null, accessToken.accessToken);
+    }
   });
 
   return client;
 }
 
+export async function getUserDetails(accessToken) {
+  const client = getAuthenticatedClient(accessToken);
+
+  const user = await client.api('/me').get();
+  return user;
+}
 
 export async function getEvents(accessToken) {
   return fetch("https://graph.microsoft.com/v1.0/users/william@chen.onmicrosoft.com/events", { 
