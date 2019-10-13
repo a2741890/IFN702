@@ -16,11 +16,6 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      isAuthenticated: false,
-      user: {},
-      error: null
-    };
 
     this.userAgentApplication = new UserAgentApplication({
         auth: {
@@ -34,10 +29,8 @@ class App extends Component {
 
     var user = this.userAgentApplication.getAccount();
 
-    var token = '';
     this.state = {
-      isAuthenticated: (token.length != 0),
-      token: token,
+      isAuthenticated: (user !== null),
       user: {},
       error: null
     };
@@ -48,6 +41,60 @@ class App extends Component {
     }
   }
   
+  
+
+  render() {
+    let error = null;
+    if (this.state.error) {
+      error = <ErrorMessage message={this.state.error.message} debug={this.state.error.debug} />;
+    }
+    return (
+      <Router>
+        <div>
+          <NavBar
+             isAuthenticated={this.state.isAuthenticated}
+             authButtonMethod={this.state.isAuthenticated ? this.logout.bind(this) : this.login.bind(this)}
+             user={this.state.user}
+            />
+          <Container>
+            {error}
+            <Route exact path="/"
+              render={(props) =>
+                <Welcome {...props}
+                  isAuthenticated={this.state.isAuthenticated}
+                  token={this.state.token}
+                  authButtonMethod={this.getClientCredentialToken.bind(this)} />
+              } />
+            <Route exact path="/calendar"
+              render={(props) =>
+                <div className="App">
+        <header>
+          <div id="logo">
+            <span className="icon">date_range</span>
+            <span>
+              Booking<b>Calendar</b>
+            </span>
+          </div>
+        </header>
+        <main>
+        <Calendar {...props}
+                  token={this.state.token}
+                  showError={this.setErrorMessage.bind(this)} />
+        </main>
+        </div>   
+              } />
+          </Container>
+        </div>
+      </Router>
+    );
+  }
+
+  setErrorMessage(message, debug) {
+    this.setState({
+      error: {message: message, debug: debug}
+    });
+  }
+
   async login() {
     try {
       await this.userAgentApplication.loginPopup(
@@ -129,59 +176,6 @@ class App extends Component {
     });
     }
   }
-
-  render() {
-    let error = null;
-    if (this.state.error) {
-      error = <ErrorMessage message={this.state.error.message} debug={this.state.error.debug} />;
-    }
-    return (
-      <Router>
-        <div>
-          <NavBar
-            isAuthenticated={this.state.isAuthenticated}
-            authButtonMethod={this.state.isAuthenticated ? this.logout.bind(this) : this.login.bind(this)}
-            user={this.state.user}/>
-          <Container>
-            {error}
-            <Route exact path="/"
-              render={(props) =>
-                <Welcome {...props}
-                  isAuthenticated={this.state.isAuthenticated}
-                  token={this.state.token}
-                  authButtonMethod={this.getClientCredentialToken.bind(this)} />
-              } />
-            <Route exact path="/calendar"
-              render={(props) =>
-                <div className="App">
-        <header>
-          <div id="logo">
-            <span className="icon">date_range</span>
-            <span>
-              Booking<b>Calendar</b>
-            </span>
-          </div>
-        </header>
-        <main>
-        <Calendar {...props}
-                  token={this.state.token}
-                  showError={this.setErrorMessage.bind(this)} />
-        </main>
-        </div>   
-              } />
-          </Container>
-        </div>
-      </Router>
-    );
-  }
-
-  setErrorMessage(message, debug) {
-    this.setState({
-      error: {message: message, debug: debug}
-    });
-  }
-
-
   
 async  getClientCredentialToken() {
     try {
