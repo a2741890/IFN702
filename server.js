@@ -7,6 +7,8 @@ var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var cors = require('cors');
 const fetch = require("node-fetch");
 
+const userName = '';
+const userEmail = '';
 app.use(cors());     
 
 // 新增邏輯
@@ -18,6 +20,99 @@ app.use(express.static(path.join(__dirname, 'build')));
   app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
   });
+
+  app.post('/', function(req, res) {
+    userName = req.body["userName"];
+    userEmail = req.body["userEmail"];
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  });
+
+app.post('/code', function(req, res){
+  let code = req.body["code"];
+  let refreshToken = '';
+  let userName = req.body["userName"];
+  let userEmail= req.body["userEmail"];
+  var details = {
+          'client_id': '59d86960-9f67-4980-8297-e8f2f4edb685',
+          'scope':'user.read%20mail.read',
+          'code': code,
+          'redirect_uri':'http://localhost:3000/',
+          'grant_type':'authorization_code',
+          'client_secret':'yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69'
+};
+
+      var formBody = [];
+      for (var property in details) {
+        var encodedKey = encodeURIComponent(property);
+        var encodedValue = encodeURIComponent(details[property]);
+        formBody.push(encodedKey + "=" + encodedValue);
+      }
+      formBody = formBody.join("&");
+
+    fetch("https://login.microsoftonline.com/chen.onmicrosoft.com/oauth2/token",{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: formBody
+        })
+        .then(res => res.json())
+        .then(
+          (result) => {
+            refreshToken = result[refresh_token];
+          },
+          // Note: it's important to handle errors here
+          // instead of a catch() block so that we don't swallow
+          // exceptions from actual bugs in components.
+          (error) => {
+            console.log(error);
+          }
+        )
+
+
+      // 建立連線
+        var mysql = require('mysql');
+      var conn = mysql.createConnection({
+      host : '127.0.0.1',
+      user : 'root',
+      password : 'a2370307',
+      database : 'IFN702'
+      });
+      // 建立連線後不論是否成功都會呼叫
+      conn.connect(function(err){
+      if(err) throw err;
+      console.log('connect success!');
+      });
+
+      
+      // 其他的資料庫操作，位置預留
+      let existUser =''; 
+      var query_string_search = 'SELECT `userEmail` FROM `user` WHERE `userEmail`="'+userEmail+'"';
+      conn.query(query_string_search, function(err, result){
+        if(err) throw err;
+        existUser = result;
+        });
+
+        if(existUser == undefined){
+          var query_string_insert = 'INSERT INTO `user` SET `userName`="'+userName+'", `userEmail`="'+userEmail+'", `refreshToken`="'+refreshToken+'"';
+          conn.query(query_string_insert, function(err, result){
+            if(err) throw err;
+            console.log(result);
+            });
+        }
+        else{
+          return "ERROR: This email has been registered!";
+        }
+      
+
+      // 關閉連線時呼叫
+      conn.end(function(err){
+      if(err) throw err;
+      console.log('connect end');
+      })
+
+})
+
 
 app.get('/getEvent',function(req,res){
       function callback(access_token){
@@ -41,8 +136,6 @@ app.get('/getEvent',function(req,res){
       )};
 
       getAccessToken(callback);
-      
-  
 })
 
 app.post('/createEvent',function(req,res){
@@ -125,7 +218,7 @@ function getAccessToken (callback){
     console.log('connect success!');
     });
     // 其他的資料庫操作，位置預留
-    conn.query("SELECT `timestamp` FROM `user` WHERE `id`=1", function(err, result, fields){
+    conn.query('SELECT `timestamp` FROM `user` WHERE `userName`="'+userName+'"', function(err, result, fields){
       if(err) throw err;
       last_timestamp = result[0].timestamp;
   
@@ -151,11 +244,16 @@ function getAccessToken (callback){
         console.log('Access token retrieved successfully!');
         callback(access_token);
       }
-      };                      
-      var body = 'client_id=59d86960-9f67-4980-8297-e8f2f4edb685&client_secret=yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69&grant_type=client_credentials&resource=https://graph.microsoft.com';
+      };     
+      
+      conn.query('SELECT `refreshToken` FROM `user` WHERE `userName`="'+userName+'"', function(err, result, fields){
+        if(err) throw err;
+        let refreshToken = result[0].refreshToken;
+      var body = 'client_id=59d86960-9f67-4980-8297-e8f2f4edb685&client_secret=yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69&grant_type=refresh_token&redirect_uri=http://localhost:3000/&&scope=calendar.read%20calendar.readwrite&refresh_token='+ refreshToken;
       xhr.open('POST','https://login.microsoftonline.com/chen.onmicrosoft.com/oauth2/token', true);
       xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
-      xhr.send(body);        
+      xhr.send(body);    
+      });    
       }
       else{
         const getToken = function(){

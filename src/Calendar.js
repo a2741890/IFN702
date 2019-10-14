@@ -39,6 +39,23 @@ class Calendar extends React.Component {
     // this.handleSubmit = this.handleSubmit.bind(this);
 }
 
+test = () =>{
+  fetch("http://localhost:3001/authorization", { 
+      method: 'get', 
+      })
+        .then(res => res.text())
+        .then((result) => {
+          return result;
+        }
+          ,
+          (error) => {
+            alert(error);
+            console.log(error);
+          }
+        )
+}
+
+
 
   renderHeader() {
     const dateFormat = "MMMM yyyy";

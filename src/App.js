@@ -26,10 +26,11 @@ class App extends Component {
             storeAuthStateInCookie: true
         }
     });
-
+    
     var user = this.userAgentApplication.getAccount();
 
     this.state = {
+      code:'',
       isAuthenticated: (user !== null),
       user: {},
       error: null
@@ -39,9 +40,18 @@ class App extends Component {
       // Enhance user object with data from Graph
       this.getUserProfile();
     }
+
   }
   
-  
+  componentDidMount(){
+    this.getCode()
+    setTimeout(() => {
+      if(this.state.code != undefined){
+        this.postCode();
+      }
+    }, 10);;
+
+  }
 
   render() {
     let error = null;
@@ -62,8 +72,7 @@ class App extends Component {
               render={(props) =>
                 <Welcome {...props}
                   isAuthenticated={this.state.isAuthenticated}
-                  token={this.state.token}
-                  authButtonMethod={this.getClientCredentialToken.bind(this)} />
+                  token={this.state.token} />
               } />
             <Route exact path="/calendar"
               render={(props) =>
@@ -94,6 +103,15 @@ class App extends Component {
       error: {message: message, debug: debug}
     });
   }
+
+  getCode = () =>{
+    let qr={};
+    window.location.search.substring(1).split("&").forEach(p => { qr[p.split("=")[0]] = p.split("=")[1] });
+    //use
+    let code = qr["code"];
+    this.setState({code:code});
+  }
+  
 
   async login() {
     try {
@@ -138,7 +156,7 @@ class App extends Component {
       // will just return the cached token. Otherwise, it will
       // make a request to the Azure OAuth endpoint to get a token
   
-      var accessToken = await this.userAgentApplication.acquireTokenSilent({
+      var accessToken = await this.userAgentApplication.AquireToken.acquireTokenSilent({
           scopes: config.scopes
         });
   
@@ -153,6 +171,28 @@ class App extends Component {
             },
             error: null
           });
+        fetch("http://localhost:3001/",{
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "userName": this.state.user.displayName,
+          "userEmail": this.state.user.mail
+        })
+        })
+          .then(res => res.json())
+          .then((result) => {
+            alert(result);
+          }
+            ,
+            (error) => {
+              alert(error);
+              console.log(error);
+            }
+          )
+
         }
     }
     catch(err) {
@@ -177,27 +217,24 @@ class App extends Component {
     }
   }
   
-async  getClientCredentialToken() {
+async postCode() {
     try {
-      // Get the access token silently
-      // If the cache contains a non-expired token, this function
-      // will just return the cached token. Otherwise, it will
-      // make a request to the Azure OAuth endpoint to get a token
-
-      // var accessToken = await this.userAgentApplication.acquireTokenSilent({
-      //   scopes: config.scopes
-      // });
-      
-        fetch("http://localhost:3001/accessToken", { 
-        method: 'get', 
+      fetch("http://localhost:3001/code",{
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "code" : this.state.code,
+          "userName": this.state.user.displayName,
+          "userEmail": this.state.user.mail
+        })
         })
           .then(res => res.json())
           .then((result) => {
-            this.setState({
-              isAuthenticated : true,
-              token : result
-              
-            });}
+            alert(result);
+          }
             ,
             (error) => {
               alert(error);
@@ -218,12 +255,6 @@ async  getClientCredentialToken() {
           debug: JSON.stringify(err)
         };
       }
-
-      this.setState({
-        isAuthenticated: false,
-        user: {},
-        error: error
-      });
     }
   }
   
