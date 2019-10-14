@@ -156,21 +156,22 @@ class App extends Component {
       // will just return the cached token. Otherwise, it will
       // make a request to the Azure OAuth endpoint to get a token
   
-      var accessToken = await this.userAgentApplication.AquireToken.acquireTokenSilent({
-          scopes: config.scopes
-        });
+      var accessToken = await this.userAgentApplication.acquireTokenSilent({
+        scopes: config.scopes
+      });
   
-        if (accessToken) {
-          // Get the user's profile from Graph
-          var user = await getUserDetails(accessToken);
-          this.setState({
-            isAuthenticated: true,
-            user: {
-              displayName: user.displayName,
-              email: user.mail || user.userPrincipalName
-            },
-            error: null
-          });
+      if (accessToken) {
+        // Get the user's profile from Graph
+        var user = await getUserDetails(accessToken);
+        this.setState({
+          isAuthenticated: true,
+          user: {
+            displayName: user.displayName,
+            email: user.mail || user.userPrincipalName
+          },
+          error: null
+        });
+
         fetch("http://localhost:3001/",{
         method: 'POST',
         headers: {
@@ -191,29 +192,28 @@ class App extends Component {
               alert(error);
               console.log(error);
             }
-          )
-
-        }
+          );
+      }
     }
     catch(err) {
       var error = {};
-    if (typeof(err) === 'string') {
-      var errParts = err.split('|');
-      error = errParts.length > 1 ?
-        { message: errParts[1], debug: errParts[0] } :
-        { message: err };
-    } else {
-      error = {
-        message: err.message,
-        debug: JSON.stringify(err)
-      };
-    }
-
-    this.setState({
-      isAuthenticated: false,
-      user: {},
-      error: error
-    });
+      if (typeof(err) === 'string') {
+        var errParts = err.split('|');
+        error = errParts.length > 1 ?
+          { message: errParts[1], debug: errParts[0] } :
+          { message: err };
+      } else {
+        error = {
+          message: err.message,
+          debug: JSON.stringify(err)
+        };
+      }
+  
+      this.setState({
+        isAuthenticated: false,
+        user: {},
+        error: error
+      });
     }
   }
   
