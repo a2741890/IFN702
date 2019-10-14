@@ -59,7 +59,7 @@ app.post('/code', function(req, res){
         .then(res => res.json())
         .then(
           (result) => {
-            refreshToken = result[refresh_token];
+            refreshToken = result.refresh_token;
           },
           // Note: it's important to handle errors here
           // instead of a catch() block so that we don't swallow
@@ -91,12 +91,16 @@ app.post('/code', function(req, res){
       conn.query(query_string_search, function(err, result){
         if(err) throw err;
         existUser = result;
+        console.log(result);
         });
+        console.log("hi1");
 
-        if(existUser == undefined){
+        if(existUser.length == 0){
           var query_string_insert = 'INSERT INTO `user` SET `userName`="'+userName+'", `userEmail`="'+userEmail+'", `refreshToken`="'+refreshToken+'"';
+          console.log("hi2");
           conn.query(query_string_insert, function(err, result){
             if(err) throw err;
+            console.log(err);
             console.log(result);
             });
         }
