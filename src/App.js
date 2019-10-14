@@ -171,7 +171,6 @@ class App extends Component {
             },
             error: null
           });
-          console.log(user.mail);
         fetch("http://localhost:3001/",{
         method: 'POST',
         headers: {
