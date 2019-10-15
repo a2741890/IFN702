@@ -44,14 +44,22 @@ class App extends Component {
   }
   
   componentDidMount(){
-    this.getCode()
+    this.getCode();
     setTimeout(() => {
-      if(this.state.code != undefined){
-        this.postCode();
+      if(this.state.code !== undefined){
+        this.postCode(this.state.code);
+        this.setState({code:''});
       }
-    }, 10);;
-
+    }, 10);
   }
+
+   getCode = ()=>{
+    let qr={};
+    window.location.search.substring(1).split("&").forEach(p => { qr[p.split("=")[0]] = p.split("=")[1] });
+    //use
+    let code = qr["code"];
+    this.setState({code:code});
+    }
 
   render() {
     let error = null;
@@ -74,7 +82,7 @@ class App extends Component {
                   isAuthenticated={this.state.isAuthenticated}
                   token={this.state.token} />
               } />
-            <Route exact path="/calendar"
+            <Route exact path="/calendar/:id"
               render={(props) =>
                 <div className="App">
         <header>
@@ -102,14 +110,6 @@ class App extends Component {
     this.setState({
       error: {message: message, debug: debug}
     });
-  }
-
-  getCode = () =>{
-    let qr={};
-    window.location.search.substring(1).split("&").forEach(p => { qr[p.split("=")[0]] = p.split("=")[1] });
-    //use
-    let code = qr["code"];
-    this.setState({code:code});
   }
   
 
@@ -159,7 +159,7 @@ class App extends Component {
       var accessToken = await this.userAgentApplication.acquireTokenSilent({
         scopes: config.scopes
       });
-  
+      
       if (accessToken) {
         // Get the user's profile from Graph
         var user = await getUserDetails(accessToken);
@@ -172,27 +172,27 @@ class App extends Component {
           error: null
         });
 
-        fetch("http://localhost:3001/",{
+        setTimeout(() =>{fetch("http://localhost:3001",{
         method: 'POST',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "userName": this.state.user.displayName,
-          "userEmail": this.state.user.mail
+          "userName": user.displayName,
+          "userEmail": user.mail
         })
         })
-          .then(res => res.json())
+          .then(res => res.text())
           .then((result) => {
-            alert(result);
+            console.log(result);
           }
             ,
             (error) => {
               alert(error);
               console.log(error);
             }
-          );
+          )}, 20);
       }
     }
     catch(err) {
@@ -217,7 +217,7 @@ class App extends Component {
     }
   }
   
-async postCode() {
+ postCode =(code)=> {
     try {
       fetch("http://localhost:3001/code",{
         method: 'POST',
@@ -226,14 +226,15 @@ async postCode() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "code" : this.state.code,
+          "code" : code,
           "userName": this.state.user.displayName,
-          "userEmail": this.state.user.mail
+          "userEmail": this.state.userEmail
         })
         })
-          .then(res => res.json())
+          .then(res => res.text())
           .then((result) => {
-            alert(result);
+
+            console.log(result+"Hi2");
           }
             ,
             (error) => {

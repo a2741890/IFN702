@@ -2,7 +2,10 @@ import React from 'react';
 import { Table } from 'reactstrap';
 import moment from 'moment';
 import config from './Config';
-import { getEvents } from './GraphService';
+import { UserAgentApplication } from 'msal';
+import { getUserDetails } from './GraphService';
+import { getEvent } from './GraphService';
+import { postEvent } from './GraphService';
 import { createEvents } from './GraphService';
 import { getBookings } from './GraphService';
 import * as dateFns from 'date-fns';
@@ -33,26 +36,11 @@ class Calendar extends React.Component {
     value: '',
     mouseDown: false
   };
-  this.getEvent();
+
+  getEvent(this,this.props.match.params.id);
   this.createDisabled();
     // this.handleChange = this.handleChange.bind(this);
     // this.handleSubmit = this.handleSubmit.bind(this);
-}
-
-test = () =>{
-  fetch("http://localhost:3001/authorization", { 
-      method: 'get', 
-      })
-        .then(res => res.text())
-        .then((result) => {
-          return result;
-        }
-          ,
-          (error) => {
-            alert(error);
-            console.log(error);
-          }
-        )
 }
 
 
@@ -208,7 +196,7 @@ test = () =>{
                 </textarea>
             </li>
             <li>
-                <input type="submit" value="Submit" onClick={e => {this.postEvent()}} />
+                <input type="submit" value="Submit" onClick={e => {postEvent()}} />
             </li>
         </ul>
         </form>
@@ -279,7 +267,7 @@ test = () =>{
       currentWeek: dateFns.addWeeks(this.state.currentWeek, 1)
     });
     
-    window.requestAnimationFrame(this.getEvent.bind(this));
+    window.requestAnimationFrame(()=>{getEvent(this,this.props.match.params.id)});
     window.requestAnimationFrame(this.createDisabled.bind(this));
   };
 
@@ -287,7 +275,7 @@ test = () =>{
     this.setState({
       currentWeek: dateFns.subWeeks(this.state.currentWeek, 1)
     });
-    window.requestAnimationFrame(this.getEvent.bind(this));
+    window.requestAnimationFrame(()=>{getEvent(this,this.props.match.params.id)});
     window.requestAnimationFrame(this.createDisabled.bind(this));
   };
   
@@ -361,62 +349,7 @@ test = () =>{
       </div>
     );
   }
-  getEvent =() =>{
-    fetch("http://localhost:3001/getEvent",{
-      method: 'GET',
-      })
-      .then(res => res.json())
-      .then(
-        (result) => {
-          let booked = this.state.booked;
-          result.value.forEach(element => {
-            let day = new Date(element.start.dateTime);
-            booked.push(day)
-          });
-
-
-          this.setState({
-            booked: booked
-          });
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          console.log(error);
-        }
-      )
-  };
   
-  postEvent = () =>{
-    fetch("http://localhost:3001/createEvent",{
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "selectedDates" : this.state.selectedDates,
-        "name": this.state.name,
-        "studentID": this.state.studentID,
-        "email": this.state.email,
-        "subject": this.state.subject,
-        "message": this.state.message
-      })
-      })
-      .then(res => res.json())
-      .then(
-        (result) => {
-          console.log(result);
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          console.log(error);
-        }
-      )
-  };
 
 }
 

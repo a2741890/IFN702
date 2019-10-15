@@ -75,6 +75,8 @@ export default class NavBar extends React.Component {
     });
   }
 
+  
+
   render() {
     // Only show calendar nav item if logged in
     let calendarLink = null;

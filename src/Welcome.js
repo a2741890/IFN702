@@ -10,7 +10,7 @@ function WelcomeContent(props) {
       <div>
         <h4>Welcome To Booking Web!</h4>
         <p>Use the navigation bar at the top of the page to get started.</p>
-        <Button color="primary" href="https://login.microsoftonline.com/9e65b29b-3a34-4a70-8d39-0d18cf221a26/oauth2/v2.0/authorize?client_id=59d86960-9f67-4980-8297-e8f2f4edb685&response_type=code&redirect_uri=http://localhost:3000/&response_mode=query&scope=offline_access%20user.read%20mail.read&state=12345" /*onClick={props.authButtonMethod}*/
+        <Button color="primary"  href="https://login.microsoftonline.com/9e65b29b-3a34-4a70-8d39-0d18cf221a26/oauth2/v2.0/authorize?client_id=59d86960-9f67-4980-8297-e8f2f4edb685&response_type=code&redirect_uri=http://localhost:3000/&response_mode=query&scope=offline_access%20user.read%20mail.read&state=12345" /*onClick={props.authButtonMethod}*/
         >
         Register!
         </Button>
