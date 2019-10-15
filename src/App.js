@@ -9,6 +9,7 @@ import config from './Config';
 import { getUserDetails } from './GraphService';
 import 'bootstrap/dist/css/bootstrap.css';
 import Calendar from './Calendar';
+import Manage from './Manage';
 import { async } from 'q';
 import "./App.css";
 
@@ -96,6 +97,24 @@ class App extends Component {
         <main>
         <Calendar {...props}
                   token={this.state.token}
+                  showError={this.setErrorMessage.bind(this)} />
+        </main>
+        </div>   
+              } />
+              <Route exact path="/manage"
+              render={(props) =>
+                <div className="App">
+        <header>
+          <div id="logo">
+            <span>
+              Admin<b>Panel</b>
+            </span>
+          </div>
+        </header>
+        <main>
+        <Manage {...props}
+                  isAuthenticated={this.state.isAuthenticated}
+                  user={this.state.user}
                   showError={this.setErrorMessage.bind(this)} />
         </main>
         </div>   

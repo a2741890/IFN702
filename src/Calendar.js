@@ -11,6 +11,7 @@ import { getBookings } from './GraphService';
 import * as dateFns from 'date-fns';
 import { stringify } from 'querystring';
 import { clone } from '@babel/types';
+import { finished } from 'stream';
 
 
 
@@ -36,6 +37,31 @@ class Calendar extends React.Component {
     value: '',
     mouseDown: false
   };
+
+  const startHour;
+  const finishHour;
+  const values;
+
+  ()=>{
+    fetch(`http://localhost:3001/configuration`,{
+    method: 'GET',
+    })
+    .then(res => res.json())
+    .then(
+      (result) => {
+        this.startHour = result.startHour;
+        this.finishHour = result.finishHour;
+        this.values = result.values;
+        console.log(this.values);
+      },
+      // Note: it's important to handle errors here
+      // instead of a catch() block so that we don't swallow
+      // exceptions from actual bugs in components.
+      (error) => {
+        console.log(error);
+      }
+    )
+  }
 
   getEvent(this,this.props.match.params.id);
   this.createDisabled();
@@ -104,7 +130,7 @@ class Calendar extends React.Component {
     const rows = [];
     let days = [];
     let sides = [];
-    let day = dateFns.addHours(startDate, 9);
+    let day = dateFns.addHours(startDate, 9);//變數
     let formattedDate = "";
 
     for(let j=9; j<18; j++)
@@ -118,7 +144,7 @@ class Calendar extends React.Component {
     }
     
     //多少個小時
-    const duration = 0.25;
+    const duration = 0.25;//變數
     let counter = 0;
     //一天有9小時可以用
     while (counter < (9/duration)*7) {

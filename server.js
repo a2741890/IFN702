@@ -209,6 +209,77 @@ app.post('/createEvent',function(req,res){
 });
 
 
+app.get('/configuration',function(req,res){
+  var conn = mysql.createConnection({
+    host : '127.0.0.1',
+    user : 'root',
+    password : 'a2370307',
+    database : 'IFN702'
+    });
+  conn.connect(function(err){
+    if(err) throw err;
+    console.log('connect success!');
+    });app.post('/configuration',function(req,res){
+
+  // 其他的資料庫操作，位置預留
+  conn.query('SELECT * FROM `user` WHERE `userName`="'+userName+'"', function(err, result, fields){
+    if(err) throw err;
+    console.log(result);
+    if(result !== undefined){
+
+      res.json({ 
+        startHour: result[0].startHour, 
+        finishHour: result[0].finishHour,
+        values: result[0].values
+      });
+      // 關閉連線時呼叫
+      conn.end(function(err){
+        if(err) throw err;
+        console.log('connect end');
+        });
+    }
+    else{
+      // 關閉連線時呼叫
+      conn.end(function(err){
+        if(err) throw err;
+        console.log('connect end');
+        });
+    res.send("Fail");
+    }
+})
+
+app.post('/configuration',function(req,res){
+  let startHour = req.body["startHour"];
+  let finishHour = req.body["finishHour"];
+  let values = req.body["values"];
+  let userName = req.body["userName"];
+
+  // 建立連線
+  var conn = mysql.createConnection({
+    host : '127.0.0.1',
+    user : 'root',
+    password : 'a2370307',
+    database : 'IFN702'
+    });
+  conn.connect(function(err){
+    if(err) throw err;
+    console.log('connect success!');
+    });app.post('/configuration',function(req,res){
+
+  // 其他的資料庫操作，位置預留
+  conn.query('UPDATE `user` SET `startHour`='+startHour+', `finishHour`="'+finishHour+', `values`="'+values+'"WHERE `userName`="'+userName+'"', function(err, result, fields){
+    if(err) throw err;
+    console.log(result);
+})
+  // 關閉連線時呼叫
+  conn.end(function(err){
+    if(err) throw err;
+    console.log('connect end');
+    });
+
+})
+
+
 app.use(function(err, req, res, next) {
   console.error(err.stack);
   res.status(500).send('Something broke!');
