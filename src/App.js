@@ -34,11 +34,13 @@ class App extends Component {
       code:'',
       isAuthenticated: (user !== null),
       user: {},
-      error: null
+      error: null,
+      path:"/calendar/:id"
     };
 
     if (user) {
       // Enhance user object with data from Graph
+      this.setState({path:"/calendar/192"});
       this.getUserProfile();
     }
 
@@ -46,12 +48,13 @@ class App extends Component {
   
   componentDidMount(){
     this.getCode();
-    setTimeout(() => {
+    let user = this.userAgentApplication.getAccount();
+    setTimeout(()=> {
       if(this.state.code !== undefined){
-        this.postCode(this.state.code);
+        this.postCode(user,this.state.code);
         this.setState({code:''});
       }
-    }, 10);
+    }, 10, user);
   }
 
    getCode = ()=>{
@@ -59,8 +62,10 @@ class App extends Component {
     window.location.search.substring(1).split("&").forEach(p => { qr[p.split("=")[0]] = p.split("=")[1] });
     //use
     let code = qr["code"];
+    console.log(code);
     this.setState({code:code});
     }
+
 
   render() {
     let error = null;
@@ -96,6 +101,7 @@ class App extends Component {
         </header>
         <main>
         <Calendar {...props}
+                  user={this.state.user}
                   token={this.state.token}
                   showError={this.setErrorMessage.bind(this)} />
         </main>
@@ -190,29 +196,8 @@ class App extends Component {
           },
           error: null
         });
-
-        setTimeout(() =>{fetch("http://localhost:3001",{
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          "userName": user.displayName,
-          "userEmail": user.mail
-        })
-        })
-          .then(res => res.text())
-          .then((result) => {
-            console.log(result);
-          }
-            ,
-            (error) => {
-              alert(error);
-              console.log(error);
-            }
-          )}, 20);
       }
+      console.log(this.state.user.displayName);
     }
     catch(err) {
       var error = {};
@@ -236,47 +221,32 @@ class App extends Component {
     }
   }
   
- postCode =(code)=> {
-    try {
-      fetch("http://localhost:3001/code",{
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          "code" : code,
-          "userName": this.state.user.displayName,
-          "userEmail": this.state.userEmail
-        })
-        })
-          .then(res => res.text())
-          .then((result) => {
-
-            console.log(result+"Hi2");
+ postCode =(user,code)=> {
+   console.log(user.userName);
+   console.log(code);
+   fetch("http://localhost:3000/code",{
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "userName": user.name,
+        "userEmail": user.userName,
+        "code": code
+      })
+      })
+        .then(res => res.text())
+        .then((result) => {
+          console.log(result);
+        }
+          ,
+          (error) => {
+            alert(error);
+            console.log(error);
           }
-            ,
-            (error) => {
-              alert(error);
-              console.log(error);
-            }
-          )
-    }
-    catch(err) {
-      var error = {};
-      if (typeof(err) === 'string') {
-        var errParts = err.split('|');
-        error = errParts.length > 1 ?
-          { message: errParts[1], debug: errParts[0] } :
-          { message: err };
-      } else {
-        error = {
-          message: err.message,
-          debug: JSON.stringify(err)
-        };
-      }
-    }
-  }
+        )}
+
   
 }
 

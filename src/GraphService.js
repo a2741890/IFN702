@@ -25,7 +25,7 @@ export async function getUserDetails(accessToken) {
 
 export async function getEvent(that,id) {
 
-  fetch(`http://localhost:3001/getEvent?id=${id}`,{
+  fetch(`http://localhost:3000/getEvent/${id}`,{
     method: 'GET',
     })
     .then(res => res.json())
@@ -49,20 +49,20 @@ export async function getEvent(that,id) {
     )
 };
 
-export async function postEvent(id){
-  fetch(`http://localhost:3001/createEvent?id="${id}"`,{
+export async function postEvent(that,id){
+  fetch(`http://localhost:3000/createEvent/${id}`,{
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      "selectedDates" : this.state.selectedDates,
-      "name": this.state.name,
-      "studentID": this.state.studentID,
-      "email": this.state.email,
-      "subject": this.state.subject,
-      "message": this.state.message
+      "selectedDates" : that.state.selectedDates,
+      "name": that.state.name,
+      "studentID": that.state.studentID,
+      "email": that.state.email,
+      "subject": that.state.subject,
+      "message": that.state.message
     })
     })
     .then(res => res.json())

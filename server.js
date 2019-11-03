@@ -18,118 +18,114 @@ app.use(express.static(path.join(__dirname, 'build')));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({extended:false}));
 
-  
   app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-  });
+    res.sendFile(path.join(__dirname, 'build', '/index.html'));
+  })
 
-  app.post('/', function(req, res) {
-    // console.log("Hiii"+JSON.stringify(req.session));
-    // global.userName = req.body["userName"];
-    // global.userEmail = req.body["userEmail"];
-    res.redirect('/');
-  });
-
-app.post('/code', function(req, res){
-  let code = req.body["code"];
-  let userName = req.body["userName"];
-  let userEmail = req.body["userEmail"];
-  console.log("Hiii"+userName+userEmail);
-  let refreshToken = '';
-  var details = {
-          'client_id': '59d86960-9f67-4980-8297-e8f2f4edb685',
-          'scope':'user.read%20mail.read',
-          'code': code,
-          'redirect_uri':'http://localhost:3000/',
-          'grant_type':'authorization_code',
-          'client_secret':'yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69'
-};
-
-      var formBody = [];
-      for (var property in details) {
-        var encodedKey = encodeURIComponent(property);
-        var encodedValue = encodeURIComponent(details[property]);
-        formBody.push(encodedKey + "=" + encodedValue);
-      }
-      formBody = formBody.join("&");
-
-    fetch("https://login.microsoftonline.com/chen.onmicrosoft.com/oauth2/token",{
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        },
-        body: formBody
-        })
-        .then(res => res.json())
-        .then(
-          (result) => {
-            refreshToken = result.refresh_token;
-            // 建立連線
-        var mysql = require('mysql');
-        var conn = mysql.createConnection({
-        host : '127.0.0.1',
-        user : 'root',
-        password : 'a2370307',
-        database : 'IFN702'
-        });
-        // 建立連線後不論是否成功都會呼叫
-        conn.connect(function(err){
-        if(err) throw err;
-        console.log('connect success!');
-        });
+ 
+  app.post('/code', function(req, res){
+    let code = req.body["code"];
+    let userName = req.body["userName"];
+    let userEmail = req.body["userEmail"];
+    console.log("Hiii"+userName+userEmail);
+    console.log(code);
+    let refreshToken = '';
+    var details = {
+            'client_id': '59d86960-9f67-4980-8297-e8f2f4edb685',
+            'scope':'calendar.read%20calendar.readwrite',
+            'code': code,
+            'redirect_uri':'http://localhost:3001/',
+            'grant_type':'authorization_code',
+            'client_secret':'yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69'
+  };
   
-        // 其他的資料庫操作，位置預留
-        let existUser ='';
-        var query_string_search = 'SELECT * FROM `user` where `userName` ="'+userName+'"';
-        console.log(query_string_search);
-        setTimeout((r)=>{conn.query(query_string_search, function(err, result){
-          if(err) throw err;
-          console.log("R is hereeeeeeeeee");
-          console.log(refreshToken);
-          if(result[0] !== undefined)
-          {
-          existUser = result[0].userName;
-          }
-
-          console.log(result);
-          if(existUser !== userName){
-            var query_string_insert = 'INSERT INTO `user` SET `timestamp`="1", `client_ID`= "59d86960-9f67-4980-8297-e8f2f4edb685", `client_Secret`="yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69", `userName`="'+userName+'", `userEmail`="'+userEmail+'", `refreshToken`="'+refreshToken+'"';
-            conn.query(query_string_insert, function(err, result){
-              if(err) throw err;
+        var formBody = [];
+        for (var property in details) {
+          var encodedKey = encodeURIComponent(property);
+          var encodedValue = encodeURIComponent(details[property]);
+          formBody.push(encodedKey + "=" + encodedValue);
+        }
+        formBody = formBody.join("&");
+  
+      fetch("https://login.microsoftonline.com/chen.onmicrosoft.com/oauth2/token",{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: formBody
+          })
+          .then(res => res.json())
+          .then(
+            (result) => {
+              refreshToken = result.refresh_token;
               console.log(result);
-              });
-              // 關閉連線時呼叫
+              // 建立連線
+          var mysql = require('mysql');
+          var conn = mysql.createConnection({
+          host : '127.0.0.1',
+          user : 'root',
+          password : 'a2370307',
+          database : 'IFN702'
+          });
+          // 建立連線後不論是否成功都會呼叫
+          conn.connect(function(err){
+          if(err) throw err;
+          console.log('connect success!');
+          });
+    
+          // 其他的資料庫操作，位置預留
+          let existUser ='';
+          var query_string_search = 'SELECT * FROM `user` where `userName` ="'+userName+'"';
+          console.log(query_string_search);
+          setTimeout(()=>{conn.query(query_string_search, function(err, result){
+            if(err) throw err;
+            console.log("R is hereeeeeeeeee");
+            console.log(refreshToken);
+            if(result[0] !== undefined)
+            {
+            existUser = result[0].userName;
+            }
+  
+            console.log(result);
+            if(existUser !== userName){
+              var query_string_insert = 'INSERT INTO `user` SET `timestamp`="1", `client_ID`= "59d86960-9f67-4980-8297-e8f2f4edb685", `client_Secret`="yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69", `userName`="'+userName+'", `userEmail`="'+userEmail+'", `refreshToken`="'+refreshToken+'"';
+              conn.query(query_string_insert, function(err, result){
+                if(err) throw err;
+                console.log(result);
+                });
+                // 關閉連線時呼叫
+              conn.end(function(err){
+                if(err) throw err;
+                console.log('connect end');
+                });
+            }
+            else{
+                // 關閉連線時呼叫
             conn.end(function(err){
               if(err) throw err;
               console.log('connect end');
               });
-          }
-          else{
-              // 關閉連線時呼叫
-          conn.end(function(err){
-            if(err) throw err;
-            console.log('connect end');
-            });
-            return "ERROR: This email has been registered!";
-          }
-          });}, 20, refreshToken)
-          
-          },
-          // Note: it's important to handle errors here
-          // instead of a catch() block so that we don't swallow
-          // exceptions from actual bugs in components.
-          (error) => {
-            console.log(error);
-          }
-        )
+              return "ERROR: This email has been registered!";
+            }
+            });}, 20, refreshToken)
+            
+            },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+            (error) => {
+              console.log(error);
+            }
+          )
+  
+        
+  
+        
+        res.send("Finished!");
+  })
 
-      
 
-      
-      res.send("Finished!");
-})
-
-app.get('/getEvent',function(req,res){
+app.get('/getEvent/:id',function(req,res){
       function callback(access_token){
       fetch('https://graph.microsoft.com/beta/users/william@chen.onmicrosoft.com/calendar/events',{
       method: 'GET',
@@ -149,11 +145,11 @@ app.get('/getEvent',function(req,res){
           res.send(error);
         }
       )};
-      console.log(req.query.id);
-      getAccessToken(req.query.id,callback);
+      console.log(typeof(req.params.id));
+      getAccessToken(req.params.id,callback);
 })
 
-app.post('/createEvent',function(req,res){
+app.post('/createEvent/:id',function(req,res){
   let date = req.body["selectedDates"][0];
   let subject = req.body["subject"];
   let message = req.body["message"];
@@ -194,6 +190,7 @@ app.post('/createEvent',function(req,res){
       .then(res => res.json())
       .then(
         (result) => {
+          res.redirect('/');
           console.log(result);
         },
         // Note: it's important to handle errors here
@@ -204,12 +201,13 @@ app.post('/createEvent',function(req,res){
         }
       )
     }
-    getAccessToken(req.query.id,callback);
+    getAccessToken(req.params.id,callback);
   res.status(200).json("Event created!");
 });
 
 
-app.get('/configuration',function(req,res){
+app.get('/configuration/:id',function(req,res){
+  console.log(req.params.id);
   var conn = mysql.createConnection({
     host : '127.0.0.1',
     user : 'root',
@@ -219,24 +217,27 @@ app.get('/configuration',function(req,res){
   conn.connect(function(err){
     if(err) throw err;
     console.log('connect success!');
-    });app.post('/configuration',function(req,res){
-
+    });
+    console.log("Hii");
+    //console.log(req.query.userName);
   // 其他的資料庫操作，位置預留
-  conn.query('SELECT * FROM `user` WHERE `userName`="'+userName+'"', function(err, result, fields){
+  conn.query('SELECT * FROM `user` WHERE `id`='+req.params.id, function(err, result, fields){
     if(err) throw err;
     console.log(result);
     if(result !== undefined){
-
-      res.json({ 
-        startHour: result[0].startHour, 
-        finishHour: result[0].finishHour,
-        values: result[0].values
-      });
+      console.log(req.query.id);
       // 關閉連線時呼叫
       conn.end(function(err){
         if(err) throw err;
         console.log('connect end');
         });
+      console.log(result);
+      res.json({ 
+        startHour: result[0].startHour, 
+        finishHour: result[0].finishHour,
+        values: result[0].values
+      });
+      
     }
     else{
       // 關閉連線時呼叫
@@ -244,8 +245,9 @@ app.get('/configuration',function(req,res){
         if(err) throw err;
         console.log('connect end');
         });
-    res.send("Fail");
+    res.json({message:"Fail"});
     }
+  })
 })
 
 app.post('/configuration',function(req,res){
@@ -253,6 +255,7 @@ app.post('/configuration',function(req,res){
   let finishHour = req.body["finishHour"];
   let values = req.body["values"];
   let userName = req.body["userName"];
+  console.log(values);
 
   // 建立連線
   var conn = mysql.createConnection({
@@ -264,10 +267,10 @@ app.post('/configuration',function(req,res){
   conn.connect(function(err){
     if(err) throw err;
     console.log('connect success!');
-    });app.post('/configuration',function(req,res){
+    });
 
   // 其他的資料庫操作，位置預留
-  conn.query('UPDATE `user` SET `startHour`='+startHour+', `finishHour`="'+finishHour+', `values`="'+values+'"WHERE `userName`="'+userName+'"', function(err, result, fields){
+  conn.query('UPDATE `user` SET `startHour`='+startHour+', `finishHour`="'+finishHour+'"WHERE `userName`="'+userName+'"', function(err, result, fields){
     if(err) throw err;
     console.log(result);
 })
@@ -276,7 +279,7 @@ app.post('/configuration',function(req,res){
     if(err) throw err;
     console.log('connect end');
     });
-
+    res.send("Hi");
 })
 
 
@@ -333,9 +336,8 @@ function getAccessToken (id,callback){
     }
       conn.query('SELECT `refreshToken` FROM `user` WHERE `id`='+id, function(err, result, fields){
         if(err) throw err;
-        let refreshToken = result[0].refreshToken;
         //console.log(result);
-      var body = 'client_id=59d86960-9f67-4980-8297-e8f2f4edb685&client_secret=yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69&grant_type=refresh_token&redirect_uri=http://localhost:3000/&&scope=calendar.read%20calendar.readwrite&refresh_token='+ result[0].refreshToken;
+      var body = 'client_id=59d86960-9f67-4980-8297-e8f2f4edb685&client_secret=yu/gwiqNAit-Pi_i/bK6n6zIOhrsAl69&grant_type=refresh_token&redirect_uri=http://localhost:3001/&&scope=calendar.read%20calendar.readwrite&refresh_token='+ result[0].refreshToken;
       xhr.open('POST','https://login.microsoftonline.com/chen.onmicrosoft.com/oauth2/token', true);
       xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
       xhr.send(body);
@@ -374,7 +376,9 @@ function getAccessToken (id,callback){
         
     })
   }
-
+  
+  
 // 監聽 port
-var port = process.env.PORT || 3001;
+var port = process.env.PORT || 3000;
 app.listen(port);
+console.log('server listening on port'+port);

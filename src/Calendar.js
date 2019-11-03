@@ -23,6 +23,17 @@ class Calendar extends React.Component {
   constructor(props){
     super(props);
 
+    this.userAgentApplication = new UserAgentApplication({
+      auth: {
+          clientId: config.appId
+      },
+      cache: {
+          cacheLocation: "localStorage",
+          storeAuthStateInCookie: true
+      }
+  });
+  
+
   this.state = {
     currentWeek: new Date(),
     selectedDate: new Date(),
@@ -35,41 +46,41 @@ class Calendar extends React.Component {
     subject: 'IFN701',
     message: '',
     value: '',
-    mouseDown: false
+    mouseDown: false,
+    code:'',
+  user: this.userAgentApplication.getAccount(),
+  error: null
   };
 
-  const startHour;
-  const finishHour;
-  const values;
-
-  ()=>{
-    fetch(`http://localhost:3001/configuration`,{
-    method: 'GET',
-    })
-    .then(res => res.json())
-    .then(
-      (result) => {
-        this.startHour = result.startHour;
-        this.finishHour = result.finishHour;
-        this.values = result.values;
-        console.log(this.values);
-      },
-      // Note: it's important to handle errors here
-      // instead of a catch() block so that we don't swallow
-      // exceptions from actual bugs in components.
-      (error) => {
-        console.log(error);
-      }
-    )
-  }
-
+  
+  console.log(this.props.match.params);
+  this.getConfig(this.props.match.params.id);
   getEvent(this,this.props.match.params.id);
   this.createDisabled();
     // this.handleChange = this.handleChange.bind(this);
     // this.handleSubmit = this.handleSubmit.bind(this);
 }
 
-
+getConfig=(id)=>{
+  console.log(id);
+  fetch(`http://localhost:3000/configuration/${id}`,{
+  method: 'GET',
+  })
+  .then(res => res.json())
+  .then(
+    (result) => {
+      localStorage.setItem('startHour', result.startHour);
+      localStorage.setItem('finishHour', result.finishHour);
+      localStorage.setItem('values', JSON.stringify(result.values));
+    },
+    // Note: it's important to handle errors here
+    // instead of a catch() block so that we don't swallow
+    // exceptions from actual bugs in components.
+    (error) => {
+      console.log(JSON.stringify(error));
+    }
+  )
+};
 
   renderHeader() {
     const dateFormat = "MMMM yyyy";
@@ -117,7 +128,7 @@ class Calendar extends React.Component {
     }
     return <div className="days row">{days}</div>;
   }
-
+//會render 4 次 可能在裡面有call set state
   renderCells() {
     const { currentWeek } = this.state;
     const weekStart = dateFns.startOfWeek(currentWeek);
@@ -125,15 +136,16 @@ class Calendar extends React.Component {
     const startDate = dateFns.startOfWeek(weekStart);
     const endDate = dateFns.endOfWeek(weekEnd);
     const today = Date.now();
-
+    const startHour = parseInt(localStorage.getItem('startHour'));
+    const finishHour = parseInt(localStorage.getItem('finishHour'));
     const dateFormat = "HH:mm";
     const rows = [];
     let days = [];
     let sides = [];
-    let day = dateFns.addHours(startDate, 9);//變數
+    let day = dateFns.addHours(startDate, startHour);//變數
     let formattedDate = "";
 
-    for(let j=9; j<18; j++)
+    for(let j=startHour; j<finishHour; j++)
     {
       sides.push(
         <div className="col cell">
@@ -145,9 +157,10 @@ class Calendar extends React.Component {
     
     //多少個小時
     const duration = 0.25;//變數
+    const dayHours = finishHour - startHour;
     let counter = 0;
     //一天有9小時可以用
-    while (counter < (9/duration)*7) {
+    while (counter < (dayHours/duration)*7) {
       for (let i = 0; i < 7; i++) {
         const cloneDay = day;
         formattedDate = dateFns.format(day, dateFormat);
@@ -166,6 +179,7 @@ class Calendar extends React.Component {
           >
             {/* <span className="number">{formattedDate}</span> */}
             <span className="bg">{formattedDate}</span>
+            {this.state.booked.find(el => el.getTime() === cloneDay.getTime())?<span style={{ color: 'blue' }}>Booked</span>:null}
           </div>
         );
         day = dateFns.addDays(day, 1);
@@ -222,7 +236,7 @@ class Calendar extends React.Component {
                 </textarea>
             </li>
             <li>
-                <input type="submit" value="Submit" onClick={e => {postEvent()}} />
+                <input type="submit" value="Submit" onClick={e => {postEvent(this,this.props.match.params.id)}} />
             </li>
         </ul>
         </form>
@@ -306,7 +320,7 @@ class Calendar extends React.Component {
   };
   
   handleChange_Name(event) {
-    this.setState({Name: event.target.value});
+    this.setState({name: event.target.value});
   }
 
   handleChange_studentID(event) {
@@ -324,6 +338,15 @@ class Calendar extends React.Component {
 
   handleSubmit(event) {
     alert('A name was submitted: ' + this.state.email);
+    this.setState({
+      name: '',
+      studentID: '',
+      email: '',
+      subject: '',
+      message: '',
+      selectedDate: '',
+      selectedDates: []
+    });
     event.preventDefault();
   }
 

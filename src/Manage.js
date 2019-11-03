@@ -13,18 +13,33 @@ import { stringify } from 'querystring';
 import { clone } from '@babel/types';
 import { finished } from 'stream';
 
+
 class Manage extends React.Component {
     constructor(props){
       super(props);
   
+
+      this.userAgentApplication = new UserAgentApplication({
+        auth: {
+            clientId: config.appId
+        },
+        cache: {
+            cacheLocation: "localStorage",
+            storeAuthStateInCookie: true
+        }
+    });
+    
+
     this.state = {
       startHour:0,
       finisHour:0,
-      values: [{ value: null }]
+      values: [{ value: null }],
+      user: this.userAgentApplication.getAccount(),
+      error: null
     };
+    
     }
-
-
+  
 
     handleChange_StartHour(event) {
       this.setState({startHour: event.target.value});
@@ -58,7 +73,7 @@ class Manage extends React.Component {
     }
 
     setSelectedOption() {
-      fetch('http://localhost:3001/configuration',{
+      fetch('http://localhost:3000/configuration',{
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -68,7 +83,7 @@ class Manage extends React.Component {
           "startHour" : this.state.startHour,
           "finishHour": this.state.finisHour,
           "values": JSON.stringify(this.state.values),
-          "userName": this.props.user.displayName
+          "userName": this.state.user.name
         })
         })
         .then(res => res.json())
@@ -86,7 +101,7 @@ class Manage extends React.Component {
     }
 
     renderForm() {
-
+      console.log(this.state.user);
       let startHour=[];
       let finisHour=[];
       for(let i=0; i<25; i++)
@@ -137,7 +152,7 @@ class Manage extends React.Component {
                 })}
               </li>
               <li>
-                  <input type="submit" value="Submit" onClick={() => this.setSelectedOption()} />
+                  <input type="submit" value="Submit" onClick={() => {this.setSelectedOption()}} />
               </li>
           </ul>
           </form>
